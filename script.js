@@ -93,12 +93,50 @@ function ouvrirFormulaire() {
 
 /* === initialisation au chargement de la page === */
 window.addEventListener("DOMContentLoaded", () => {
+  // Affichage selon présence de l'objectif
   if (!goal) {
-    // Première ouverture → formulaire
     document.getElementById("setupForm").classList.remove("hidden");
   } else {
-    // Objectif existant → app
     document.getElementById("mainApp").classList.remove("hidden");
     updateBottle();
   }
+
+  // Demande la permission de notifications si dispo
+  if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        console.log("Notifications autorisées ✅");
+      } else {
+        console.log("Notifications refusées ❌");
+      }
+    });
+  }
+
+  // Notification toutes les 60 minutes (si autorisé)
+  if ("Notification" in window && Notification.permission === "granted") {
+    setInterval(() => {
+      new Notification("💧 N'oublie pas de boire un peu d'eau !");
+    }, 60 * 60 * 1000); // 1h = 60 min * 60 sec * 1000 ms
+  }
+
+  // Enregistrement du service worker
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+      .then(() => console.log("✅ Service Worker actif"))
+      .catch(err => console.error("Erreur SW :", err));
+  }
 });
+
+
+/* notification */
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
+function envoyerNotification() {
+  if (Notification.permission === "granted") {
+    new Notification("💧 Il est temps de boire une gorgée d'eau !");
+  }
+}
+if (document.getElementById("notifToggle").checked) {
+  setInterval(envoyerNotification, 60 * 60 * 1000);
+}
