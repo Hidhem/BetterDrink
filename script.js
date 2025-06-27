@@ -116,7 +116,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if ("Notification" in window && Notification.permission === "granted") {
     setInterval(() => {
       new Notification("💧 N'oublie pas de boire un peu d'eau !");
-    }, 60 * 60 * 1000); // 1h = 60 min * 60 sec * 1000 ms
+    }, 10 * 1000); // 1h = 60 min * 60 sec * 1000 ms
   }
 
   // Enregistrement du service worker
