@@ -1,7 +1,7 @@
 {
-  "name": "DrinkBetter",
-  "short_name": "DrinkBetter",
-  "start_url": "index.html",
+  "name": "BetterDrink",
+  "short_name": "BetterDrink",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f0f4f8",
   "theme_color": "#3498db",
