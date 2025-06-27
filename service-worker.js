@@ -1,64 +1,22 @@
-body {
-  font-family: sans-serif;
-  background: #9dcbf8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-}
+const CACHE_NAME = "drinkbetter-cache-v1";
+const urlsToCache = [
+  "/",
+  "/index.html",
+  "/style.css",
+  "/script.js",
+  "/manifest.json",
+  "/icon-192.png",
+  "/icon-512.png"
+];
 
-main {
-  text-align: center;
-}
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
+});
 
-.bottle-container {
-  display: flex;
-  align-items: flex-end;
-  gap: 1rem;
-  margin: 2rem 0;
-}
-
-.bottle {
-  width: 100px;
-  height: 300px;
-  border: 4px solid #3498db;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  background: white;
-}
-
-.water {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 0%;
-  background: #3498db;
-  transition: height 0.3s ease;
-  border-radius: 0 0 16px 16px;
-}
-
-.graduation {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 300px;
-}
-
-.graduation span {
-  font-size: 0.8rem;
-}
-h1
-{
-  color: white;
-}
-.hidden { display: none; }
-
-#setupForm label {
-  display:block; margin:12px 0; font-size:15px;
-}
-#setupForm input, #setupForm select {
-  margin-left:6px; padding:4px;
-}
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(response => response || fetch(event.request))
+  );
+});
