@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>BetterDrink</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== Formulaire premier lancement =========================== -->
+<section id="setupForm" class="hidden">
+  <h1>Bienvenue sur BetterDrink</h1>
+  <p>Réponds à ces 3 questions ; on calcule ton objectif.</p>
+
+  <label>Genre :
+    <select id="genre">
+      <option value="H">Homme</option>
+      <option value="F">Femme</option>
+      <option value="X">Autre</option>
+    </select>
+  </label>
+
+  <label>Poids (kg) :
+    <input id="poids" type="number" min="20" max="300" required />
+  </label>
+
+  <label>Niveau d’activité :
+    <select id="activite">
+      <option value="sedentaire">Sédentaire</option>
+      <option value="moderee" selected>Normale</option>
+      <option value="intense">Sportive</option>
+    </select>
+  </label>
+
+  <button onclick="validerFormulaire()">Calculer & utiliser</button>
+</section>
+
+<!-- ===== Application principale ================================= -->
+<main>
+  <section id="mainApp" class="hidden">
+    <h1>BetterDrink</h1>
+
+    <p id="display">0 / 0 ml</p>
+
+    <div class="bottle-container">
+      <div class="bottle skin-default">
+        <div class="water" id="waterLevel"></div>
+      </div>
+      <div class="graduation">
+        <span id="g2">2000</span>
+        <span id="g1">1000</span>
+        <span>0</span>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button onclick="addMl(50)">+ 1 Gorgée<br>(50 ml)</button>
+      <button onclick="addMl(250)">+ 1 Verre<br>(250 ml)</button></p>
+      <button onclick="undoLast()">↩️ Annuler</button>
+      <button onclick="resetBottle()">🗑️ Vider</button></p>
+    </div>
+
+    <button onclick="ouvrirFormulaire()">⚙️ Modifier mon objectif</button>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
