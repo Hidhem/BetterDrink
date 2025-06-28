@@ -1,42 +1,62 @@
-/* === constantes globales === */
+/* === constantes et états globaux ================================= */
 let goal = 0;               // objectif quotidien (sera défini dynamiquement)
 let currentMl = 0;          // quantité actuelle
-let history = [];           // tableau des ajouts successifs
+let history = [];           // historique des ajouts
+let badges  = [];           // liste des badges obtenus
 
-/* === récupération de la sauvegarde === */
-const savedGoal    = localStorage.getItem("objectif");
+/* === récupération des sauvegardes ================================ */
+const savedGoal    = localStorage.getItem("waterGoal");
 const savedCurrent = localStorage.getItem("waterMl");
 const savedHistory = localStorage.getItem("waterHistory");
+const savedBadges  = localStorage.getItem("badges");
 
 if (savedGoal)    goal      = parseInt(savedGoal, 10);
 if (savedCurrent) currentMl = parseInt(savedCurrent, 10);
 if (savedHistory) {
   try { history = JSON.parse(savedHistory); } catch { history = []; }
 }
-
-/* === fonctions utilitaires === */
-function save() {
-  localStorage.setItem("waterMl", currentMl);
-  localStorage.setItem("waterHistory", JSON.stringify(history));
+if (savedBadges) {
+  try { badges = JSON.parse(savedBadges); } catch { badges = []; }
 }
 
-/* === mettre à jour l'affichage de la bouteille === */
+/* === réinitialisation quotidienne ================================ */
+const today    = new Date().toISOString().split("T")[0];           // "YYYY-MM-DD"
+const lastDate = localStorage.getItem("lastDate");
+
+if (lastDate !== today) {
+  currentMl = 0;
+  history   = [];
+  localStorage.setItem("lastDate", today);
+}
+
+/* === fonctions utilitaires ======================================= */
+function save() {
+  localStorage.setItem("waterMl",      currentMl);
+  localStorage.setItem("waterHistory", JSON.stringify(history));
+  localStorage.setItem("badges",       JSON.stringify(badges));
+  localStorage.setItem("waterGoal",    goal);
+}
+
 function updateBottle() {
   if (!goal) return;
-
   const percent = (currentMl / goal) * 100;
   document.getElementById("waterLevel").style.height = Math.min(percent, 100) + "%";
   document.getElementById("display").innerText = `${currentMl} / ${goal} ml`;
 
-  // Graduation dynamique
+  // graduation dynamique
   document.getElementById("g1").innerText = Math.round(goal / 2);
   document.getElementById("g2").innerText = goal;
 
+  // badge «objectif atteint»
+  if (currentMl >= goal && !badges.includes(today + "_done")) {
+    badges.push(today + "_done");
+    alert("🎉 Bravo ! Objectif atteint aujourd’hui !");
+  }
+
   save();
-  localStorage.setItem("objectif", goal);
 }
 
-/* === ajouter de l'eau === */
+/* === actions utilisateur ========================================= */
 function addMl(amount) {
   if (currentMl < goal) {
     currentMl = Math.min(currentMl + amount, goal);
@@ -45,55 +65,49 @@ function addMl(amount) {
   }
 }
 
-/* === annuler la dernière action === */
 function undoLast() {
-  if (history.length === 0) return;
-  const lastAmount = history.pop();
-  currentMl = Math.max(currentMl - lastAmount, 0);
+  if (!history.length) return;
+  currentMl = Math.max(currentMl - history.pop(), 0);
   updateBottle();
 }
 
-/* === vider complètement === */
 function resetBottle() {
   currentMl = 0;
-  history = [];
+  history   = [];
   updateBottle();
 }
 
-/* === formulaire : valider et calculer l’objectif === */
+/* === formulaire de démarrage ===================================== */
 function validerFormulaire() {
   const poids = parseFloat(document.getElementById("poids").value);
-  if (!poids) { alert("Indique ton poids"); return; }
-
+  if (isNaN(poids) || poids < 20 || poids > 300) {
+    alert("Merci d’indiquer un poids valide.");
+    return;
+  }
   const activite = document.getElementById("activite").value;
   let facteur = 35;
   if (activite === "sedentaire") facteur = 30;
   if (activite === "intense")    facteur = 40;
 
-  goal = Math.round(poids * facteur);
+  goal      = Math.round(poids * facteur);
   currentMl = 0;
-  history = [];
+  history   = [];
+  localStorage.setItem("lastDate", today);   // nouveau départ
+  save();
 
-  localStorage.setItem("objectif", goal);
-  localStorage.removeItem("waterMl");
-  localStorage.removeItem("waterHistory");
-
-  // Affichage
   document.getElementById("setupForm").classList.add("hidden");
   document.getElementById("mainApp").classList.remove("hidden");
-
   updateBottle();
 }
 
-/* === bouton pour rouvrir le formulaire plus tard === */
 function ouvrirFormulaire() {
   document.getElementById("mainApp").classList.add("hidden");
   document.getElementById("setupForm").classList.remove("hidden");
 }
 
-/* === initialisation au chargement de la page === */
+/* === initialisation ============================================== */
 window.addEventListener("DOMContentLoaded", () => {
-  // Affichage selon présence de l'objectif
+  // Affichage selon présence de l’objectif
   if (!goal) {
     document.getElementById("setupForm").classList.remove("hidden");
   } else {
@@ -101,42 +115,22 @@ window.addEventListener("DOMContentLoaded", () => {
     updateBottle();
   }
 
-  // Demande la permission de notifications si dispo
-  if ("Notification" in window && Notification.permission !== "granted") {
-    Notification.requestPermission().then(permission => {
-      if (permission === "granted") {
-        console.log("Notifications autorisées ✅");
-      } else {
-        console.log("Notifications refusées ❌");
-      }
-    });
+  /* Permissions notifications */
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission().then(p => console.log("Permission :", p));
   }
 
-  // Notification toutes les 60 minutes (si autorisé)
+  /* Notification horaire (si autorisée) */
   if ("Notification" in window && Notification.permission === "granted") {
     setInterval(() => {
-      new Notification("💧 N'oublie pas de boire un peu d'eau !");
-    }, 60 * 60 * 1000); // 1h = 60 min * 60 sec * 1000 ms
+      new Notification("💧 N’oublie pas de boire un peu d’eau !");
+    }, 60 * 60 * 1000); // toutes les 60 min
   }
 
-  // Enregistrement du service worker
+  /* Service worker */
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
       .then(() => console.log("✅ Service Worker actif"))
       .catch(err => console.error("Erreur SW :", err));
   }
 });
-
-
-/* notification */
-if ("Notification" in window && Notification.permission !== "granted") {
-  Notification.requestPermission();
-}
-function envoyerNotification() {
-  if (Notification.permission === "granted") {
-    new Notification("💧 Il est temps de boire une gorgée d'eau !");
-  }
-}
-if (document.getElementById("notifToggle").checked) {
-  setInterval(envoyerNotification, 60 * 60 * 1000);
-}
