@@ -2,20 +2,24 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BetterDrink">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <title>BetterDrink</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ===== Formulaire premier lancement =========================== -->
+<!-- ===== Formulaire premier lancement ========================= -->
 <section id="setupForm" class="hidden">
-  <h1>Bienvenue sur BetterDrink</h1>
-  <p>Réponds à ces 3 questions ; on calcule ton objectif.</p>
+  <h1>Bienvenue sur BetterDrink 💧</h1>
+  <p>Réponds à ces trois questions ; on calcule ton objectif.</p>
 
-  <label>Genre :
+  <label>Genre :
     <select id="genre">
       <option value="H">Homme</option>
       <option value="F">Femme</option>
@@ -23,11 +27,11 @@
     </select>
   </label>
 
-  <label>Poids (kg) :
+  <label>Poids (kg) :
     <input id="poids" type="number" min="20" max="300" required />
   </label>
 
-  <label>Niveau d’activité :
+  <label>Niveau d’activité :
     <select id="activite">
       <option value="sedentaire">Sédentaire</option>
       <option value="moderee" selected>Normale</option>
@@ -38,36 +42,43 @@
   <button onclick="validerFormulaire()">Calculer & utiliser</button>
 </section>
 
-<!-- ===== Paramètres ================================= -->
+<!-- ===== Page paramètres ===================================== -->
 <section id="settingsPage" class="hidden">
   <h2>Paramètres</h2>
 
-  <button onclick="ouvrirFormulaire()">Modifier mes objectifs</button></p>
-
-  <label>
-    <input type="checkbox" id="notifToggle" />
+  <label style="display:block; margin:12px 0;">
+    <input type="checkbox" id="notifToggle" onchange="toggleNotif(this.checked)" />
     Activer les notifications toutes les heures
-  </label></p>
+  </label>
 
+  <button onclick="ouvrirFormulaire()">🧮 Modifier mes objectifs</button>
   <button onclick="fermerParametres()">← Retour</button>
 </section>
 
-<!-- ===== Application principale =============================== -->
+<!-- ===== Page succès ========================================= -->
+<section id="successPage" class="hidden">
+  <h2>Mes succès</h2>
+  <ul id="successList"></ul>
+  <button onclick="fermerSucces()">← Retour</button>
+</section>
+
+<!-- ===== Application principale ============================== -->
 <main>
   <section id="mainApp" class="hidden">
 
-    <!-- Barre du haut avec bouton paramètres -->
+    <!-- Barre du haut -->
     <div class="top-bar">
       <h1>BetterDrink</h1>
-      <button class="settings-btn" onclick="ouvrirParametres()">⚙️</button>
+      <div>
+        <button class="success-btn"   onclick="ouvrirSucces()">🎖️</button>
+        <button class="settings-btn"  onclick="ouvrirParametres()">⚙️</button>
+      </div>
     </div>
 
-    <!-- Affichage de la quantité -->
     <p id="display">0 / 0 ml</p>
 
-    <!-- Bouteille -->
     <div class="bottle-container">
-      <div class="bottle skin-default">
+      <div class="bottle">
         <div class="water" id="waterLevel"></div>
       </div>
       <div class="graduation">
@@ -77,10 +88,9 @@
       </div>
     </div>
 
-    <!-- Boutons d’action -->
     <div class="buttons">
-      <button onclick="addMl(50)">+ 1 Gorgée<br>(50 ml)</button>
-      <button onclick="addMl(250)">+ 1 Verre<br>(250 ml)</button></p>
+      <button onclick="addMl(50)">+ 1 Gorgée<br>(50 ml)</button>
+      <button onclick="addMl(250)">+ 1 Verre<br>(250 ml)</button></p>
       <button onclick="undoLast()">↩️ Annuler</button>
       <button onclick="resetBottle()">🗑️ Vider</button>
     </div>
