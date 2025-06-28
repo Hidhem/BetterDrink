@@ -76,3 +76,7 @@ h1
 #setupForm input, #setupForm select {
   margin-left:6px; padding:4px;
 }
+html, body {
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+}
