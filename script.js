@@ -153,4 +153,14 @@ window.addEventListener("DOMContentLoaded", () => {
       .then(() => console.log("✅ Service Worker actif"))
       .catch(err => console.error("Erreur SW :", err));
   }
+let lastTouchEnd = 0;
+
+document.addEventListener('touchend', function(event) {
+  let now = (new Date()).getTime();
+  if (now - lastTouchEnd <= 300) {
+    event.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
 });
