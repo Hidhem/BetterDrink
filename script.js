@@ -39,8 +39,10 @@ function updateBottle() {
   document.getElementById("g1").innerText = Math.round(goal / 2);
   document.getElementById("g2").innerText = goal;
 
-  if (currentMl >= goal && !badges.includes(today + "_done")) {
-    badges.push(today + "_done");
+  // badge «objectif atteint» avec date + heure ISO complète
+  if (currentMl >= goal && !badges.some(b => b.endsWith("_done"))) {
+    const nowISO = new Date().toISOString();
+    badges.push(nowISO + "_done");
     alert("🎉 Bravo ! Objectif atteint aujourd’hui !");
   }
   save();
@@ -75,6 +77,7 @@ function validerFormulaire() {
 function ouvrirFormulaire() {
   document.getElementById("mainApp").classList.add("hidden");
   document.getElementById("settingsPage").classList.add("hidden");
+  document.getElementById("successPage").classList.add("hidden");
   document.getElementById("setupForm").classList.remove("hidden");
 }
 
@@ -108,6 +111,7 @@ function toggleNotif(chk) {
 function ouvrirParametres() {
   document.getElementById("mainApp").classList.add("hidden");
   document.getElementById("settingsPage").classList.remove("hidden");
+  document.getElementById("successPage").classList.add("hidden");
   document.getElementById("notifToggle").checked = notifPref && Notification.permission === "granted";
 }
 function fermerParametres() {
@@ -115,33 +119,57 @@ function fermerParametres() {
   document.getElementById("mainApp").classList.remove("hidden");
 }
 
+/* === succès ================================================ */
+function ouvrirSucces() {
+  document.getElementById("mainApp").classList.add("hidden");
+  document.getElementById("settingsPage").classList.add("hidden");
+  document.getElementById("successPage").classList.remove("hidden");
+  afficherSucces();
+}
+function fermerSucces() {
+  document.getElementById("successPage").classList.add("hidden");
+  document.getElementById("mainApp").classList.remove("hidden");
+}
+
+function afficherSucces() {
+  const list = document.getElementById("successList");
+  list.innerHTML = "";
+
+  if (badges.length === 0) {
+    list.innerHTML = "<li>Aucun succès pour l'instant.</li>";
+    return;
+  }
+
+  badges.forEach(badge => {
+    if (badge.endsWith("_done")) {
+      const datetimeStr = badge.slice(0, -5); // retire "_done"
+      const dateObj = new Date(datetimeStr);
+
+      const date = dateObj.toLocaleDateString('fr-FR');
+      const heure = dateObj.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+
+      const li = document.createElement("li");
+      li.innerHTML = `🏆 <strong>Objectif atteint</strong><br><small>Le ${date} à ${heure}</small>`;
+      list.appendChild(li);
+    }
+  });
+
+  if (list.children.length === 0) {
+    list.innerHTML = "<li>Aucun succès pour l'instant.</li>";
+  }
+}
+
 /* === init ======================================================= */
 window.addEventListener("DOMContentLoaded", () => {
-  /* ouverture selon état */
   if (!goal) document.getElementById("setupForm").classList.remove("hidden");
   else { document.getElementById("mainApp").classList.remove("hidden"); updateBottle(); }
 
-  /* si ouvert via ?add=250 */
-  const q = new URLSearchParams(location.search);
-  if (q.has("add")) {
-    const amt = parseInt(q.get("add"), 10);
-    if (!isNaN(amt)) addMl(amt);
-    history.replaceState(null, "", location.pathname); // nettoie l'URL
-  }
-
-  /* notifications */
   if (notifPref && Notification.permission === "granted") startNotifications();
 
-  /* enregistrement SW + listener messages */
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").then(reg => {
       console.log("✅ Service Worker actif");
-      /* pour showNotification() dans startNotifications */
       window.registration = reg;
     }).catch(err => console.error("Erreur SW :", err));
-
-    navigator.serviceWorker.addEventListener("message", ev => {
-      if (ev.data?.action === "addWater") addMl(ev.data.amount);
-    });
   }
 });
