@@ -11,90 +11,96 @@
   <link rel="apple-touch-icon" href="icon-192.png" />
   <title>BetterDrink</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 
-<!-- ===== Formulaire premier lancement ========================= -->
-<section id="setupForm" class="hidden">
-  <h1>Bienvenue sur BetterDrink 💧</h1>
-  <p>Réponds à ces trois questions ; on calcule ton objectif.</p>
-
-  <label>Genre :
-    <select id="genre">
-      <option value="H">Homme</option>
-      <option value="F">Femme</option>
-      <option value="X">Autre</option>
-    </select>
-  </label>
-
-  <label>Poids (kg) :
-    <input id="poids" type="number" min="20" max="300" required />
-  </label>
-
-  <label>Niveau d’activité :
-    <select id="activite">
-      <option value="sedentaire">Sédentaire</option>
-      <option value="moderee" selected>Normale</option>
-      <option value="intense">Sportive</option>
-    </select>
-  </label>
-
-  <button onclick="validerFormulaire()">Calculer & utiliser</button>
-</section>
-
-<!-- ===== Page paramètres ===================================== -->
-<section id="settingsPage" class="hidden">
-  <h2>Paramètres</h2>
-
-  <label style="display:block; margin:12px 0;">
-    <input type="checkbox" id="notifToggle" onchange="toggleNotif(this.checked)" />
-    Activer les notifications toutes les heures
-  </label>
-
-  <button onclick="ouvrirFormulaire()">🧮 Modifier mes objectifs</button>
-  <button onclick="fermerParametres()">← Retour</button>
-</section>
-
-<!-- ===== Page succès ========================================= -->
-<section id="successPage" class="hidden">
-  <h2>Mes succès</h2>
-  <ul id="successList"></ul>
-  <button onclick="fermerSucces()">← Retour</button>
-</section>
-
-<!-- ===== Application principale ============================== -->
 <main>
-  <section id="mainApp" class="hidden">
 
-    <!-- Barre du haut -->
+  <!-- ===== Formulaire premier lancement ====================== -->
+  <section id="setupForm" class="hidden">
+    <h1>Bienvenue sur BetterDrink 💧</h1>
+    <p>Réponds aux 3 questions ; on calcule ton objectif.</p>
+
+    <label>Genre :
+      <select id="genre">
+        <option value="H">Homme</option>
+        <option value="F">Femme</option>
+        <option value="X">Autre</option>
+      </select>
+    </label>
+
+    <label>Poids (kg) :
+      <input id="poids" type="number" min="20" max="300" required />
+    </label>
+
+    <label>Niveau d’activité :
+      <select id="activite">
+        <option value="sedentaire">Sédentaire</option>
+        <option value="moderee" selected>Normale</option>
+        <option value="intense">Sportive</option>
+      </select>
+    </label>
+
+    <button onclick="validerFormulaire()">Calculer & utiliser</button>
+  </section>
+
+  <!-- ===== Paramètres ======================================== -->
+  <section id="settingsPage" class="hidden">
+    <h2>Paramètres</h2>
+
+    <label style="display:block;margin:12px 0;">
+      <input type="checkbox" id="notifToggle"
+             onchange="toggleNotif(this.checked)" />
+      Activer les notifications toutes les heures
+    </label>
+
+    <button onclick="ouvrirFormulaire()">🧮 Modifier mes objectifs</button>
+    <button onclick="fermerParametres()">← Retour</button>
+  </section>
+
+  <!-- ===== Succès ============================================ -->
+  <section id="successPage" class="hidden">
+    <h2>Mes succès</h2>
+    <ul id="successList"></ul>
+    <button onclick="fermerSucces()">← Retour</button>
+  </section>
+
+<!-- =====  Statistiques =================== -->
+<section id="statsPage" class="hidden">
+  <h2>Statistiques</h2>
+  <canvas id="statsChart" width="300" height="200"></canvas>
+  <button onclick="fermerStats()">← Retour</button>
+</section>
+
+
+  <!-- ===== Application principale ============================ -->
+  <section id="mainApp" class="hidden">
     <div class="top-bar">
-      <div>
-        <button class="success-btn"   onclick="ouvrirSucces()">🎖️</button>
-        <button class="settings-btn"  onclick="ouvrirParametres()">⚙️</button>
-      </div></p>
       <h1>BetterDrink</h1>
+      <div class="top-buttons">
+        <button class="top-btn" onclick="ouvrirStats()">📊</button>
+        <button class="top-btn" onclick="ouvrirSucces()">🎖️</button>
+        <button class="top-btn" onclick="ouvrirParametres()">⚙️</button>
+      </div>
     </div>
 
     <p id="display">0 / 0 ml</p>
 
     <div class="bottle-container">
-      <div class="bottle">
-        <div class="water" id="waterLevel"></div>
-      </div>
+      <div class="bottle"><div id="waterLevel" class="water"></div></div>
       <div class="graduation">
-        <span id="g2">2000</span>
-        <span id="g1">1000</span>
-        <span>0</span>
+        <span id="g2">2000</span><span id="g1">1000</span><span>0</span>
       </div>
     </div>
 
     <div class="buttons">
-      <button onclick="addMl(50)">+ 1 Gorgée<br>(50 ml)</button>
-      <button onclick="addMl(250)">+ 1 Verre<br>(250 ml)</button></p>
+      <button onclick="addMl(50)">+ 1 Gorgée<br>(50 ml)</button>
+      <button onclick="addMl(250)">+ 1 Verre<br>(250 ml)</button></p>
       <button onclick="undoLast()">↩️ Annuler</button>
       <button onclick="resetBottle()">🗑️ Vider</button>
     </div>
-
   </section>
 </main>
 
